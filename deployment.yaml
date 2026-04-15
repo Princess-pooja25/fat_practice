@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bio-data-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: bio-data
+  template:
+    metadata:
+      labels:
+        app: bio-data
+    spec:
+      containers:
+      - name: bio-data
+        image: bio-data-app
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 80
