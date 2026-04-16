@@ -1,0 +1,65 @@
+pipeline {
+    agent any
+
+    environment {
+        KUBECONFIG = 'C:\\ProgramData\\Jenkins\\.kube\\config'
+        IMAGE_NAME = 'bio-data-app:latest'
+    }
+
+    stages {
+
+        stage('Clone') {
+            steps {
+                git branch: 'main', url: 'https://github.com/Princess-pooja25/fat_practice.git'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                bat '''
+                docker build -t %IMAGE_NAME% .
+                docker images
+                '''
+            }
+        }
+
+        stage('Test Kubernetes') {
+            steps {
+                bat '''
+                kubectl config current-context
+                kubectl get nodes
+                '''
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                bat '''
+                kubectl apply -f deployment.yaml
+                kubectl apply -f service.yaml
+                kubectl rollout status deployment/bio-data-deployment
+                kubectl get pods
+                kubectl get services
+                '''
+            }
+        }
+    }
+
+    post {
+        success {
+            bat '''
+            echo Deployment completed successfully.
+            kubectl get pods
+            kubectl get services
+            '''
+        }
+
+        failure {
+            bat '''
+            echo Deployment failed. Showing debug output...
+            kubectl get pods
+            kubectl describe deployment bio-data-deployment
+            '''
+        }
+    }
+}
