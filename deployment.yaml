@@ -15,6 +15,6 @@ spec:
       containers:
       - name: bio-data
         image: bio-data-app
-        imagePullPolicy: Never
+        imagePullPolicy :IfNotPresent
         ports:
         - containerPort: 80
